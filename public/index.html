@@ -1,0 +1,76 @@
+<!doctype html>
+
+<!-- ASSIGN OUR ANGULAR MODULE -->
+<html ng-app="bfx">
+<head>
+	<!-- META -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+	<title>BFX app</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <script src="js/webmidi/webmidi.min.js"></script>
+	<script src="js/controllers/main.js"></script> <!-- load up our controller -->
+	<script src="js/core.js"></script> <!-- load our main application -->
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+</head>
+<!-- SET THE CONTROLLER -->
+<body ng-controller="mainController">
+    <div class="row">
+        <div class="col-sm-3"><select ng-model="input" ng-options="i as i.name for i in WebMidi.inputs"></select></div>
+        <div class="col-sm-3"><select ng-model="output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
+    </div>
+    <hr>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <!-- waveforms -->
+        </div>
+        <div class="col-md-1">
+            <div class="row def">
+                <div class="col-md-1">
+                    Vol
+                    <input type="range" orient="vertical" />
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <input type="range" orient="vertical" />
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <input type="range" orient="vertical" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="row def">
+                <div class="col-md-1">
+                    Sub
+                    <input type="range" ng-change="sendControlValue(synth.CC.subLevel)" ng-model="synth.params[synth.CC.subLevel]" orient="vertical" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row def">
+                <div class="col-md-3">
+                    Cutoff
+                    <input type="range" ng-change="sendControlValue(synth.CC.cutoff)" ng-model="synth.params[synth.CC.cutoff]" orient="vertical" />
+                </div>
+                <div class="col-md-3">
+                    Resonance
+                    <input type="range" ng-change="sendControlValue(synth.CC.resonance)" ng-model="synth.params[synth.CC.resonance]" orient="vertical" />
+                </div>
+                <div class="col-md-3">
+                    Amp
+                    <input type="range" ng-change="sendControlValue(synth.CC.amp)" ng-model="synth.params[synth.CC.amp]" orient="vertical" />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

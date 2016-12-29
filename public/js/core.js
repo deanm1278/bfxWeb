@@ -1,0 +1,1 @@
+angular.module('bfx', ['mainController']);

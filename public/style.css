@@ -1,0 +1,16 @@
+body{
+    
+}
+
+input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 8px;
+    height: 125px;
+    padding: 0 5px;
+}
+
+.row .def{
+    height: 175px;
+}
