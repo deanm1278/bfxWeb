@@ -1,1 +1,1 @@
-angular.module('bfx', ['mainController']);
+angular.module('bfx', ['mainController', 'graphing']);

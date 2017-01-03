@@ -14,3 +14,73 @@ input[type=range][orient=vertical]
 .row .def{
     height: 175px;
 }
+
+svg {
+  font: 10px sans-serif;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+path.line
+{
+    fill: rgb(118, 37, 232);
+    fill-opacity: .3;
+    stroke: rgb(73, 68, 102);
+    stroke-width: 1.5;
+    clip-path: url(#clip);
+}
+
+path.verticalLine
+{
+    clip-path: url(#clip);
+}
+
+.domain{
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+.domain-hide{
+    display: none;
+}
+
+.axis line {
+  shape-rendering: crispEdges;
+  stroke: #CCCCCC;
+}
+
+.overlayContainer { display: none;}
+.overlayBackground { 
+    top:0px; left:0px; 
+    position:absolute;
+    z-index:1000;
+    height:100%;
+    width:100%;
+    background-color:rgba(76, 76, 76, 0.5);
+}
+.overlayContent { 
+    position:absolute;
+    left: 0;
+    right: 0;
+    top:0;
+    bottom: 0;
+    margin: auto;
+    border: 1px solid #000; 
+    background-color:#fff;
+    font-weight: bold;
+    height: 500px;
+    width: 700px;
+    z-index:1000;
+    text-align:center;
+}
+

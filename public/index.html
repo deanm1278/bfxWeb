@@ -9,9 +9,13 @@
 
 	<title>BFX app</title>
 
+        <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>-->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
         <script src="js/webmidi/webmidi.min.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="js/controllers/main.js"></script> <!-- load up our controller -->
+        <script src="js/services/graphing.js"></script>
+        <script src="js/services/sysex.js"></script>
 	<script src="js/core.js"></script> <!-- load our main application -->
         
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -28,6 +32,24 @@
     <div class="row">
         <div class="col-md-4">
             <!-- waveforms -->
+            <div class="row def">
+                <div class="col-md-12">
+                    <a ng-click="toggleEditor(synth.waves[0])">edit</a>
+                    <bfx-graph graph="waveGraphs[0]" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-12">
+                    <a ng-click="toggleEditor(synth.waves[1])">edit</a>
+                    <bfx-graph graph="waveGraphs[1]" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-12">
+                    <a ng-click="toggleEditor(synth.waves[2])">edit</a>
+                    <bfx-graph graph="waveGraphs[2]" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                </div>
+            </div>
         </div>
         <div class="col-md-1">
             <div class="row def">
@@ -70,7 +92,29 @@
                     <input type="range" ng-change="sendControlValue(synth.CC.amp)" ng-model="synth.params[synth.CC.amp]" orient="vertical" />
                 </div>
             </div>
+            <div class="row def">
+                <div class="col-md-12">
+                    <select ng-init='selMod0 = synth.mods[0]; modGraph0 = generateModGraph(selMod0)' 
+                            ng-model='selMod0' 
+                            ng-change='modGraph0 = generateModGraph(selMod0)' 
+                            ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
+                    <a ng-click="toggleEditor(selMod0.data)">edit</a>
+                    <bfx-graph graph="modGraph0" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-12">
+                    <select ng-init='selMod1 = synth.mods[1]; modGraph1 = generateModGraph(selMod1)' 
+                            ng-model='selMod1' 
+                            ng-change='modGraph1 = generateModGraph(selMod1)' 
+                            ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
+                    <a ng-click="toggleEditor(selMod1.data)">edit</a>
+                    <bfx-graph graph="modGraph1" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                </div>
+            </div>
         </div>
     </div>
+    
+    <wave-editor wave="editingWave" close="toggleEditor" ng-if="editorActive"></wave-editor>
 </body>
 </html>
