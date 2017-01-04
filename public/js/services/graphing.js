@@ -56,6 +56,11 @@ angular.module("graphing", [])
                 obj.pre = function(fn){
                    this.pres.push(fn);  
                 };
+                
+                obj.redraw = function(){
+                    this.canvas.select(".line")
+                         .attr("d", this.drawLine('x', 'y'));
+                };
 
                 //Standard domain getting function, can take a function to apply to the value
                 obj.getDomain = function(axis, data, key, apply, forceZero){
@@ -84,11 +89,11 @@ angular.module("graphing", [])
                 var obj = Object.create(self.createBaseGraph(data), { });
                 obj.pre(function(caller){
                     caller.canvas = caller.body.append("g").attr("clip-path", "url(#clip)");
-                    caller.x = d3.scale.linear().range([0, caller.width]);
-                    caller.y = d3.scale.linear().range([caller.height, 0]);
+                    caller.x = d3.scaleLinear().range([0, caller.width]);
+                    caller.y = d3.scaleLinear().range([caller.height, 0]);
 
-                    caller.xAxis = d3.svg.axis().scale(caller.x).orient("bottom").ticks(0);
-                    caller.yAxis = d3.svg.axis().scale(caller.y).orient("left").ticks(0);
+                    caller.xAxis = d3.axisBottom(caller.x).ticks(0);
+                    caller.yAxis = d3.axisLeft(caller.y).ticks(0);
                     
                     caller.y.domain([-32768, 32767]);
                 });
@@ -106,7 +111,7 @@ angular.module("graphing", [])
                 obj.drawLine = function(x_attr, y_attr, xAxisObj, yAxisObj) {
                     xAxisObj = typeof xAxisObj !== 'undefined' ? xAxisObj : this.x;
                     yAxisObj = typeof yAxisObj !== 'undefined' ? yAxisObj : this.y;
-                    return d3.svg.line()
+                    return d3.line()
                             .x(function(d) {
                                 return xAxisObj(d[x_attr]);
                             })
@@ -141,7 +146,71 @@ angular.module("graphing", [])
                 return obj;
             };
         })
+        
+        .directive('waveEditor', function(graphingService){
+            return{
+                restrict: 'E',
+                templateUrl:'templates/waveEditor.html',
+                replace: true,
+                scope: {
+                    wave: "=",
+                    close: "&"
+                },
+                link: function(scope, element){
+                    
+                    var dataCopy = angular.copy(scope.wave);
+                    var g = graphingService.createGraphWave();
+                    g.data = dataCopy;
+                    //need to parse the date strings into date objects
+                    g.pre(function(caller){
+                        caller.getDomain('x', caller.data, 'x');
+                    });
+                    g.mod(function(caller){
+                        caller.drawY("");
 
+                        caller.canvas.append("path")
+                            .datum(caller.data)
+                            .attr("class", "line")
+                            .attr("d", caller.drawLine('x', 'y'));
+                    
+                        caller.bisect = d3.bisector(function(datum) {
+                            return datum.x;
+                        }).right;
+                        
+                        caller.dragUpdate = {};
+                        
+                        caller.svg.call(d3.drag()
+                            .container(function() { return this; })
+                            .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
+                            .on("start", dragstarted));
+                    });
+                    
+                    var dragstarted = function () {
+                        //console.log(d3.event.x, d3.event.y);
+                        scope.waveGraph.dragUpdate = [];
+                        
+                        d3.event.on("drag", function () {
+                            var ix = scope.waveGraph.x.invert(d3.event.x);
+                            var index = scope.waveGraph.bisect(scope.waveGraph.data, ix);
+                            scope.waveGraph.dragUpdate[index] = scope.waveGraph.y.invert(d3.event.y);
+                            
+                            //console.log(scope.waveGraph.dragUpdate);
+                            //scope.waveGraph.redraw();
+                        });
+                    };
+                    
+                    scope.waveGraph = g;
+                    
+                    scope.clearWave = function(){
+                       for(var i in dataCopy){
+                           dataCopy[i] = {x:i, y:0};
+                       }
+                       scope.waveGraph.redraw();
+                    };
+                }
+            };
+        })
+        
         .directive('bfxGraph', function(){
                return{
                    restrict: 'E',

@@ -121,36 +121,6 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         
 }]);
 
-ctlr.directive('waveEditor', function(graphingService){
-    return{
-        restrict: 'E',
-        templateUrl:'templates/waveEditor.html',
-        replace: true,
-        scope: {
-            wave: "=",
-            close: "&"
-        },
-        link: function(scope, element){
-            var g = graphingService.createGraphWave();
-            g.data = scope.wave;
-            //need to parse the date strings into date objects
-            g.pre(function(caller){
-                caller.getDomain('x', caller.data, 'x');
-            });
-            g.mod(function(caller){
-                caller.drawY("");
-
-            caller.canvas.append("path")
-                .datum(caller.data)
-                .attr("class", "line")
-                .attr("d", caller.drawLine('x', 'y'));
-            });
-            
-            scope.waveGraph = g;
-        }
-    };
-});
-
 ctlr.service('synth', function(){
     this.params = {
         74 : 50,

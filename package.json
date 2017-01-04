@@ -1,5 +1,5 @@
 {
-  "name": "BFX web",
+  "name": "BFXweb",
   "version": "0.0.1",
   "description": "web interface for bfx synth",
   "main": "server.js",
