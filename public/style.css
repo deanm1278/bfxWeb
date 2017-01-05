@@ -54,9 +54,22 @@ path.verticalLine
     display: none;
 }
 
+.axis path {
+  shape-rendering: crispEdges;
+  stroke-width: .3px;
+}
+
 .axis line {
   shape-rendering: crispEdges;
   stroke: #CCCCCC;
+}
+
+.tick {
+    stroke-opacity : .4;
+}
+
+.link-btn {
+    cursor: pointer;
 }
 
 .overlayContainer { display: none;}
@@ -75,7 +88,8 @@ path.verticalLine
     top:0;
     bottom: 0;
     margin: auto;
-    border: 1px solid #000; 
+    padding: 10px;
+    border-radius: 4px;
     background-color:#fff;
     font-weight: bold;
     height: 500px;

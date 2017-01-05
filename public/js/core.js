@@ -1,1 +1,1 @@
-angular.module('bfx', ['mainController', 'graphing']);
+angular.module('bfx', ['mainController', 'graphing', 'ui.knob']);

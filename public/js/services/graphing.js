@@ -93,7 +93,7 @@ angular.module("graphing", [])
                     caller.y = d3.scaleLinear().range([caller.height, 0]);
 
                     caller.xAxis = d3.axisBottom(caller.x).ticks(0);
-                    caller.yAxis = d3.axisLeft(caller.y).ticks(0);
+                    caller.yAxis = d3.axisRight(caller.y).ticks(4).tickSize(caller.width + 10);
                     
                     caller.y.domain([-32768, 32767]);
                 });
@@ -160,6 +160,7 @@ angular.module("graphing", [])
                     
                     var dataCopy = angular.copy(scope.wave);
                     var g = graphingService.createGraphWave();
+                    g.tool = 'draw';
                     g.data = dataCopy;
                     //need to parse the date strings into date objects
                     g.pre(function(caller){
@@ -219,6 +220,13 @@ angular.module("graphing", [])
                                 scope.waveGraph.redraw();
                             }
                         });
+                    };
+                    
+                    scope.save = function(){
+                        for(var i in scope.wave){
+                            scope.wave[i] = scope.waveGraph.data[i];
+                        }
+                        scope.close()();
                     };
                     
                     scope.waveGraph = g;

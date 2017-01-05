@@ -2,20 +2,27 @@
     <div class="overlayContent">
         <div class="row">
             <div class="col-md-1">
-                <a ng-click="close()()">Done</a>
+                <a ng-click="close()()" class="link-btn"><span class="glyphicon glyphicon-remove"></span></a>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <bfx-graph graph="waveGraph" height='400' width='600' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                <bfx-graph graph="waveGraph" height='400' width='600' margin='{left:10, right:0, top:10, bottom:10}'></bfx-graph>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-1">
-                <a ng-click="clearWave()">Clear</a>
-            </div>
-            <div class="col-md-1">
-                <a ng-click="waveGraph.tool = 'draw'">draw</a>
+            <div class="col-md-12">
+                <div class="btn-toolbar" role="toolbar">
+                    <div class="btn-group" role="group">
+                        <button type="button" ng-click="save()" class="btn btn-default">Save</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" ng-click="clearWave()" class="btn btn-default">Clear</button>
+                        <button type="button" class="btn btn-default" ng-class="{'active' : waveGraph.tool == 'draw'}" ng-click="waveGraph.tool = 'draw'"><span class='glyphicon glyphicon-pencil'></span></button>
+                        <button type="button" class="btn btn-default"><span class='glyphicon glyphicon-move'></span></button>
+                        <button type="button" class="btn btn-default">smooth</button>
+                    </div>
+              </div>
             </div>
         </div>
     </div>

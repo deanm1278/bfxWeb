@@ -37,18 +37,50 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         });
         
+        $scope.knobOptions = {
+            skin: {
+              type: 'tron',
+              width: 5,
+              color: '#494B52',
+              spaceWidth: 3
+            },
+            size: 100,
+            barColor: '#494B52',
+            trackWidth: 30,
+            barWidth: 30,
+            textColor: '#494B52',
+            step: 1,
+            max: 127,
+            animate: { enabled: false }
+          };
+          
+        $scope.$watch('synth.params', function(newVal, oldVal){
+            for(var i in newVal){
+                if(newVal[i] != oldVal[i]){
+                    $scope.sendControlValue(i);
+                }
+            }
+        }, true);
+
         $scope.sendControlValue = function(ccNum){
-            $scope.output.send(0xB0, [ccNum, $scope.synth.params[ccNum]]);
+            if($scope.output){
+                $scope.output.send(0xB0, [ccNum, $scope.synth.params[ccNum]]);
+            }
         };
         
         $scope.writeFrame = function(channel, data){
-             var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
-             var sysexArray = [channel];
-             sysexArray = sysexArray.concat(sysexData);
-             $scope.output.sendSysex(synth.opcodes.WRITE_FRAME, sysexArray);
+            if($scope.output){
+                var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
+                var sysexArray = [channel];
+                sysexArray = sysexArray.concat(sysexData);
+                $scope.output.sendSysex(synth.opcodes.WRITE_FRAME, sysexArray);
+            }
         };
         
         $scope.toggleEditor = function(wave){
+            for(var i in $scope.waveGraphs){
+                $scope.waveGraphs[i].redraw();
+            }
             $scope.editingWave = wave;
             $scope.editorActive = !$scope.editorActive;
         };
@@ -126,14 +158,21 @@ ctlr.service('synth', function(){
         74 : 50,
         71 : 50,
         7 : 50,
-        76 : 50
+        76 : 50,
+        
+        14: 60,
+        15: 65,
+        16: 66
     };
     
     this.CC = {
         cutoff : 74,
         resonance : 71,
         amp : 7,
-        subLevel : 76
+        subLevel : 76,
+        vol0 : 14,
+        vol1 : 15,
+        vol2 : 16
     };
     
     this.waves = [[], [], []];
