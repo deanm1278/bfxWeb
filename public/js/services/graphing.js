@@ -177,7 +177,7 @@ angular.module("graphing", [])
                             return datum.x;
                         }).right;
                         
-                        caller.dragUpdate = {};
+                        caller.dragUpdate = [];
                         
                         caller.svg.call(d3.drag()
                             .container(function() { return this; })
@@ -192,10 +192,32 @@ angular.module("graphing", [])
                         d3.event.on("drag", function () {
                             var ix = scope.waveGraph.x.invert(d3.event.x);
                             var index = scope.waveGraph.bisect(scope.waveGraph.data, ix);
-                            scope.waveGraph.dragUpdate[index] = scope.waveGraph.y.invert(d3.event.y);
                             
-                            //console.log(scope.waveGraph.dragUpdate);
-                            //scope.waveGraph.redraw();
+                            if(index < scope.waveGraph.data.length && index > 0){
+                                var selected = scope.waveGraph.y.invert(d3.event.y);
+                                scope.waveGraph.dragUpdate[index] = Math.max(-32768, Math.min(selected, 32767));
+
+                                var ud = scope.waveGraph.dragUpdate;
+                                var last, lastix, val;
+                                for(var i in scope.waveGraph.dragUpdate){
+                                    if(!last){ 
+                                        last = ud[i];
+                                        lastix = i;
+                                    }
+                                    else{
+                                        val = ud[lastix];
+                                        var m = (ud[i] - ud[lastix]) / (i - lastix);
+                                        while(lastix < i){
+                                            scope.waveGraph.data[lastix].y = val;
+                                            val += m;
+                                            lastix++;
+                                        }
+                                    }
+                                }
+
+                                //console.log(scope.waveGraph.dragUpdate);
+                                scope.waveGraph.redraw();
+                            }
                         });
                     };
                     
