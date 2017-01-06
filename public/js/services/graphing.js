@@ -226,7 +226,7 @@ angular.module("graphing", [])
                         for(var i in scope.wave){
                             scope.wave[i] = scope.waveGraph.data[i];
                         }
-                        scope.close()();
+                        scope.close()(true);
                     };
                     
                     scope.waveGraph = g;

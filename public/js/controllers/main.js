@@ -29,7 +29,7 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
                 );
                 newValue.addListener('controlchange', "all",
                     function (e) {
-                      $scope.output.send(e.data[0], [e.data[1], e.data[2]]);
+                      //$scope.output.send(e.data[0], [e.data[1], e.data[2]]);
                       $scope.synth.params[e.data[1]] = e.data[2];
                       $scope.$apply();
                     }
@@ -77,12 +77,22 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         };
         
-        $scope.toggleEditor = function(wave){
-            for(var i in $scope.waveGraphs){
-                $scope.waveGraphs[i].redraw();
+        $scope.editWave = function(index){
+            $scope.editingIndex = index;
+            $scope.editingWave = $scope.synth.waves[index];
+            $scope.editorActive = true;
+        };
+        
+        $scope.closeEditor = function(write){
+            if(write){
+                var data = [];
+                for(var i in $scope.synth.waves[$scope.editingIndex]){ 
+                    data.push($scope.synth.waves[$scope.editingIndex][i].y); 
+                }
+                $scope.writeFrame($scope.editingIndex, data);
+                $scope.waveGraphs[$scope.editingIndex].redraw();
             }
-            $scope.editingWave = wave;
-            $scope.editorActive = !$scope.editorActive;
+            $scope.editorActive = false;
         };
         
         var generateWaveGraphs = function(){
@@ -108,7 +118,6 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         };
         
         $scope.generateModGraph = function(mod){
-            console.log(mod);
             if(mod){
                 var g;
                 if(mod.type == 'lfo'){
@@ -130,7 +139,6 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
                     .attr("class", "line")
                     .attr("d", caller.drawLine('x', 'y'));
                 });
-                console.log(g);
                 return g;
             }
         };

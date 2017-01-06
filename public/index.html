@@ -35,19 +35,19 @@
             <!-- waveforms -->
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="toggleEditor(synth.waves[0])">edit</a>
+                    <a ng-click="editWave(0)">edit</a>
                     <bfx-graph graph="waveGraphs[0]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="toggleEditor(synth.waves[1])">edit</a>
+                    <a ng-click="editWave(1)">edit</a>
                     <bfx-graph graph="waveGraphs[1]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="toggleEditor(synth.waves[2])">edit</a>
+                    <a ng-click="editWave(2)">edit</a>
                     <bfx-graph graph="waveGraphs[2]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
@@ -75,7 +75,6 @@
                 <div class="col-md-1">
                     Sub
                     <ui-knob value="synth.params[synth.CC.subLevel]" options="knobOptions"></ui-knob>
-                    <!-- <input type="range" ng-change="sendControlValue(synth.CC.subLevel)" ng-model="synth.params[synth.CC.subLevel]" orient="vertical" /> -->
                 </div>
             </div>
         </div>
@@ -84,17 +83,14 @@
                 <div class="col-md-3">
                     Cutoff
                     <ui-knob value="synth.params[synth.CC.cutoff]" options="knobOptions"></ui-knob>
-                    <!--<input type="range" ng-change="sendControlValue(synth.CC.cutoff)" ng-model="synth.params[synth.CC.cutoff]" orient="vertical" />-->
                 </div>
                 <div class="col-md-3">
                     Resonance
                     <ui-knob value="synth.params[synth.CC.resonance]" options="knobOptions"></ui-knob>
-                    <!-- <input type="range" ng-change="sendControlValue(synth.CC.resonance)" ng-model="synth.params[synth.CC.resonance]" orient="vertical" /> -->
                 </div>
                 <div class="col-md-3">
                     Amp
                     <ui-knob value="synth.params[synth.CC.amp]" options="knobOptions"></ui-knob>
-                    <!-- <input type="range" ng-change="sendControlValue(synth.CC.amp)" ng-model="synth.params[synth.CC.amp]" orient="vertical" /> -->
                 </div>
             </div>
             <div class="row def">
@@ -120,6 +116,6 @@
         </div>
     </div>
     
-    <wave-editor wave="editingWave" close="toggleEditor" ng-if="editorActive"></wave-editor>
+    <wave-editor wave="editingWave" close="closeEditor" ng-if="editorActive"></wave-editor>
 </body>
 </html>
