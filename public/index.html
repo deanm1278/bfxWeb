@@ -27,6 +27,7 @@
     <div class="row">
         <div class="col-sm-3"><select ng-model="input" ng-options="i as i.name for i in WebMidi.inputs"></select></div>
         <div class="col-sm-3"><select ng-model="output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
+        <div class="col-sm-1"><button class="btn btn-default" ng-click="writeModAtIndex(0)">Add Mod</button></div>
     </div>
     <hr>
     
@@ -35,19 +36,19 @@
             <!-- waveforms -->
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(0)">edit</a>
+                    <a ng-click="editWave(0, 'wave')">edit</a>
                     <bfx-graph graph="waveGraphs[0]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(1)">edit</a>
+                    <a ng-click="editWave(1, 'wave')">edit</a>
                     <bfx-graph graph="waveGraphs[1]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(2)">edit</a>
+                    <a ng-click="editWave(2, 'wave')">edit</a>
                     <bfx-graph graph="waveGraphs[2]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
@@ -66,7 +67,27 @@
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.vol2]" options="knobOptions"></ui-knob>
+                    <!--<ui-knob value="synth.params[synth.CC.vol2]" options="knobOptions"></ui-knob>-->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="row def">
+                <div class="col-md-1">
+                    <ui-knob value="synth.params[synth.CC.trans0]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.CC.tune0]" options="knobOptionsSmall"></ui-knob>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <ui-knob value="synth.params[synth.CC.trans1]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.CC.tune1]" options="knobOptionsSmall"></ui-knob>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <ui-knob value="synth.params[synth.CC.trans2]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.CC.tune2]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
         </div>
@@ -75,6 +96,18 @@
                 <div class="col-md-1">
                     Sub
                     <ui-knob value="synth.params[synth.CC.subLevel]" options="knobOptions"></ui-knob>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <ui-knob value="synth.params[1]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[114]" options="knobOptionsSmall"></ui-knob>
+                </div>
+            </div>
+            <div class="row def">
+                <div class="col-md-1">
+                    <ui-knob value="synth.params[18]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[19]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
         </div>
@@ -99,7 +132,7 @@
                             ng-model='selMod0' 
                             ng-change='modGraph0 = generateModGraph(selMod0)' 
                             ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
-                    <a ng-click="toggleEditor(selMod0.data)">edit</a>
+                    <a ng-click="editWave(0, 'mod')">edit</a>
                     <bfx-graph graph="modGraph0" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
@@ -109,7 +142,7 @@
                             ng-model='selMod1' 
                             ng-change='modGraph1 = generateModGraph(selMod1)' 
                             ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
-                    <a ng-click="toggleEditor(selMod1.data)">edit</a>
+                    <a ng-click="editWave(1, 'mod')">edit</a>
                     <bfx-graph graph="modGraph1" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>

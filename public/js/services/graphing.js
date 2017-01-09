@@ -194,7 +194,7 @@ angular.module("graphing", [])
                             var ix = scope.waveGraph.x.invert(d3.event.x);
                             var index = scope.waveGraph.bisect(scope.waveGraph.data, ix);
                             
-                            if(index < scope.waveGraph.data.length && index > 0){
+                            if(index <= scope.waveGraph.data.length && index >= 0){
                                 var selected = scope.waveGraph.y.invert(d3.event.y);
                                 scope.waveGraph.dragUpdate[index] = Math.max(-32768, Math.min(selected, 32767));
 

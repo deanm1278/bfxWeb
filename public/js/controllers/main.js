@@ -53,6 +53,22 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             max: 127,
             animate: { enabled: false }
           };
+          $scope.knobOptionsSmall = {
+            skin: {
+              type: 'tron',
+              width: 2,
+              color: '#494B52',
+              spaceWidth: 3
+            },
+            size: 50,
+            barColor: '#494B52',
+            trackWidth: 5,
+            barWidth: 10,
+            textColor: '#494B52',
+            step: 1,
+            max: 127,
+            animate: { enabled: false }
+          };
           
         $scope.$watch('synth.params', function(newVal, oldVal){
             for(var i in newVal){
@@ -77,20 +93,48 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         };
         
-        $scope.editWave = function(index){
+        $scope.writeMod = function(num, type, target, data){
+            if($scope.output){
+                var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
+                var sysexArray = [num, type, target];
+                sysexArray = sysexArray.concat(sysexData);
+                $scope.output.sendSysex(synth.opcodes.WRITE_MOD, sysexArray);
+            }
+        };
+        
+        $scope.writeModAtIndex = function(ix){
+            var mod = $scope.synth.mods[ix];
+            var data = [];
+            for(var i in mod.data){
+                data.push(mod.data[i].y);
+            }
+            $scope.writeMod(ix, mod.type, mod.target, data);
+            //TODO: send CC depth and rate as well
+        };
+        
+        $scope.editWave = function(index, type){
+            $scope.editingType = type;
             $scope.editingIndex = index;
-            $scope.editingWave = $scope.synth.waves[index];
+            if(type == 'wave') { $scope.editingWave = $scope.synth.waves[index]; }
+            else if(type == 'mod') { $scope.editingWave = $scope.synth.mods[index].data; }
             $scope.editorActive = true;
         };
         
         $scope.closeEditor = function(write){
             if(write){
                 var data = [];
-                for(var i in $scope.synth.waves[$scope.editingIndex]){ 
-                    data.push($scope.synth.waves[$scope.editingIndex][i].y); 
+                if($scope.editingType == 'wave'){
+                    for(var i in $scope.synth.waves[$scope.editingIndex]){ 
+                        data.push($scope.synth.waves[$scope.editingIndex][i].y); 
+                    }
+                    $scope.writeFrame($scope.editingIndex, data);
+                    $scope.waveGraphs[$scope.editingIndex].redraw();
                 }
-                $scope.writeFrame($scope.editingIndex, data);
-                $scope.waveGraphs[$scope.editingIndex].redraw();
+                else if($scope.editingType == 'mod'){
+                    $scope.writeModAtIndex($scope.editingIndex);
+                    $scope.modGraph0.redraw();
+                    $scope.modGraph1.redraw();
+                }
             }
             $scope.editorActive = false;
         };
@@ -120,10 +164,10 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.generateModGraph = function(mod){
             if(mod){
                 var g;
-                if(mod.type == 'lfo'){
+                if(mod.type == $scope.synth.modTypes.LFO){
                     g = graphingService.createGraphWave();
                 }
-                else if(mod.type == 'env'){
+                else if(mod.type == $scope.synth.modTypes.ENVELOPE){
                     g = graphingService.createGraphEnv();
                 }
                 g.data = mod.data;
@@ -149,12 +193,14 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         
         
         $scope.synth.mods[0] = {
-            data: waveGen.denv(),
-            type: 'env'
+            data: waveGen.sineWave(256),
+            type: $scope.synth.modTypes.LFO,
+            target: $scope.synth.targets.cutoff
         };
         $scope.synth.mods[1] = {
-            data: waveGen.sineWave(256),
-            type: 'lfo'
+            data: waveGen.denv(),
+            type: $scope.synth.modTypes.ENVELOPE,
+            target: $scope.synth.targets.amp
         };
         
         generateWaveGraphs();
@@ -170,7 +216,21 @@ ctlr.service('synth', function(){
         
         14: 60,
         15: 65,
-        16: 66
+        16: 66, 
+        
+        77: 64,
+        93: 64,
+        73: 64,
+        
+        17: 64,
+        91: 64,
+        79: 64,
+        
+        1: 50,
+        114: 50,
+        
+        18: 50,
+        19: 50
     };
     
     this.CC = {
@@ -180,7 +240,13 @@ ctlr.service('synth', function(){
         subLevel : 76,
         vol0 : 14,
         vol1 : 15,
-        vol2 : 16
+        //vol2 : 16,
+        trans0 : 77,
+        trans1 : 93,
+        trans2 : 73,
+        tune0 : 17,
+        tune1 : 91,
+        tune2 : 79
     };
     
     this.waves = [[], [], []];
@@ -192,7 +258,26 @@ ctlr.service('synth', function(){
         DUMP_FRAME: 0x02,
         SET_ENABLE: 0x03,
         SET_MODE: 0x04,
-        DUMP_PATCH: 0x05
+        DUMP_PATCH: 0x05,
+        WRITE_MOD: 0x06
+    };
+    this.targets = {
+        OSC0_PITCH: 0x00,
+        OSC1_PITCH: 0x01,
+        OSC2_PITCH: 0x02,
+
+        OSC0_ARP: 0x03,
+        OSC1_ARP: 0x04,
+        OSC2_ARP: 0x05,
+
+        sublevel: 0x06,
+        cutoff: 0x07,
+        resonance: 0x08,
+        amp: 0x09
+    };
+    this.modTypes = {
+        LFO: 0x00,
+        ENVELOPE: 0x01
     };
 });
 
@@ -228,8 +313,8 @@ ctlr.factory('waveGen', function(){
             
             for(var i = 0; i<1024; i++){
                 if(i == 0 || i == 1023) { y = 0; }
-                else if(i < 512){ y = -32768; }
-                else{ y = 32767; }
+                else if(i < 512){ y = 32767; }
+                else{ y = -32768; }
                 arr.push({x:i, y:y});
             }
             return arr;
@@ -238,11 +323,11 @@ ctlr.factory('waveGen', function(){
             var step = 32768 / 356;
             var arr = [];
             var y = 0;
-            for(var i = 0; i < 256; i++){
+            for(var i = 0; i < 255; i++){
                 arr.push({x:i, y:y});
                 y -= step;
             }
-            arr.push({x:256, y:0});
+            arr.push({x:255, y:0});
             return arr;
         }
    } 
