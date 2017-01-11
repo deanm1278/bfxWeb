@@ -7,6 +7,7 @@
   "dependencies": {
     "body-parser": "^1.4.3",
     "express": "^4.13.4",
+    "letsencrypt-express": "^2.0.5",
     "method-override": "^2.1.3",
     "mongoose": "^4.4.12",
     "morgan": "^1.1.1",
