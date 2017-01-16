@@ -1,6 +1,6 @@
-angular.module("graphing", [])
+angular.module("graphing", ['api'])
 
-        .service("graphingService", function(){
+        .service("graphingService", function(apiService){
             var bfxGraph = {};
             var self = this;
             this.createBaseGraph = function(data){
@@ -147,7 +147,7 @@ angular.module("graphing", [])
             };
         })
         
-        .directive('waveEditor', function(graphingService){
+        .directive('waveEditor', function(graphingService, apiService){
             return{
                 restrict: 'E',
                 templateUrl:'templates/waveEditor.html',
@@ -157,6 +157,10 @@ angular.module("graphing", [])
                     close: "&"
                 },
                 link: function(scope, element){
+                    
+                    apiService.async({action:'getWaves'}, function(d){
+                        scope.presets = d;
+                    });
                     
                     var dataCopy = angular.copy(scope.wave);
                     var g = graphingService.createGraphWave();
@@ -236,6 +240,15 @@ angular.module("graphing", [])
                            dataCopy[i] = {x:i, y:0};
                        }
                        scope.waveGraph.redraw();
+                    };
+                    
+                    scope.getWavePreset = function(filename){
+                        apiService.async({action:'getPreset', filename:filename}, function(d){
+                            for(var i in dataCopy){
+                                dataCopy[i] = d[i];
+                            }
+                            scope.waveGraph.redraw();
+                        });
                     };
                 }
             };

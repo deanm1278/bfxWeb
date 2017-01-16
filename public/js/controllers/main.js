@@ -9,7 +9,7 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.WebMidi.enable(function (err) {
             //console.log($scope.WebMidi.inputs);
             //console.log($scope.WebMidi.outputs);
-            $scope.$apply();
+            //$scope.$apply();
         }, true);
         
         $scope.$watch('input', function(newValue, oldValue){
@@ -187,9 +187,9 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         };
         
-        $scope.synth.waves[0] = waveGen.sineWave(1024);
+        $scope.synth.waves[0] = waveGen.sawWave();
         $scope.synth.waves[1] = waveGen.sawWave();
-        $scope.synth.waves[2] = waveGen.squareWave();
+        $scope.synth.waves[2] = waveGen.sawWave();
         
         
         $scope.synth.mods[0] = {
@@ -221,6 +221,7 @@ ctlr.service('synth', function(){
         77: 64,
         93: 64,
         73: 64,
+        75: 64,
         
         17: 64,
         91: 64,
@@ -238,13 +239,13 @@ ctlr.service('synth', function(){
         resonance : 71,
         amp : 7,
         subLevel : 76,
-        vol0 : 14,
-        vol1 : 15,
-        //vol2 : 16,
-        trans0 : 77,
+        vol0 : 77,
+        vol1 : 17,
+        vol2 : 75,
+        //trans0 : 77,
         trans1 : 93,
         trans2 : 73,
-        tune0 : 17,
+        //tune0 : 17,
         tune1 : 91,
         tune2 : 79
     };

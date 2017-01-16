@@ -6,10 +6,12 @@
 	<!-- META -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="mobile-web-app-capable" content="yes">
 
 	<title>BFX app</title>
 
-        <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
         <script src="js/webmidi/webmidi.min.js"></script>
         <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -17,6 +19,7 @@
 	<script src="js/controllers/main.js"></script> <!-- load up our controller -->
         <script src="js/services/graphing.js"></script>
         <script src="js/services/sysex.js"></script>
+        <script src="js/services/api.js"></script>
 	<script src="js/core.js"></script> <!-- load our main application -->
         
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -67,7 +70,7 @@
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <!--<ui-knob value="synth.params[synth.CC.vol2]" options="knobOptions"></ui-knob>-->
+                    <ui-knob value="synth.params[synth.CC.vol2]" options="knobOptions"></ui-knob>
                 </div>
             </div>
         </div>
@@ -132,6 +135,8 @@
                             ng-model='selMod0' 
                             ng-change='modGraph0 = generateModGraph(selMod0)' 
                             ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
+                    <select ng-model="selMod0.type" ng-options="val as key for (key, val) in synth.modTypes"></select>
+                    <select ng-model="selMod0.target" ng-options="val as key for (key, val) in synth.targets"></select>
                     <a ng-click="editWave(0, 'mod')">edit</a>
                     <bfx-graph graph="modGraph0" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
@@ -142,6 +147,8 @@
                             ng-model='selMod1' 
                             ng-change='modGraph1 = generateModGraph(selMod1)' 
                             ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
+                    <select ng-model="selMod1.type" ng-options="val as key for (key, val) in synth.modTypes"></select>
+                    <select ng-model="selMod1.target" ng-options="val as key for (key, val) in synth.targets"></select>
                     <a ng-click="editWave(1, 'mod')">edit</a>
                     <bfx-graph graph="modGraph1" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>

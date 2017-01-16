@@ -22,6 +22,8 @@
                         <button type="button" class="btn btn-default"><span class='glyphicon glyphicon-move'></span></button>
                         <button type="button" class="btn btn-default">smooth</button>
                     </div>
+                    
+                    <select ng-model="frame" ng-change="getWavePreset(frame)" ng-options="fn as fn for fn in presets"></select>
               </div>
             </div>
         </div>

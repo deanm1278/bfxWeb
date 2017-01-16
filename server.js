@@ -5,7 +5,7 @@ var express = require('express');
 // returns an instance of node-letsencrypt with additional helper methods
 var lex = require('letsencrypt-express').create({
   // set to https://acme-v01.api.letsencrypt.org/directory in production
-  server: 'staging'
+  server: 'https://acme-v01.api.letsencrypt.org/directory'
 
 // If you wish to replace the default plugins, you may do so here
 //
@@ -46,7 +46,7 @@ var app = express(); 						// create our app w/ express
 var port = process.env.PORT || 3000; 				// set the port
 //var database = require('./config/database'); 			// load the database config
 var morgan = require('morgan');
-//var bodyParser = require('body-parser');
+var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 
 require('http').createServer(lex.middleware(require('redirect-https')())).listen(port, function () {
@@ -58,8 +58,8 @@ require('http').createServer(lex.middleware(require('redirect-https')())).listen
 
 app.use(express.static('./public')); 		// set the static files location
 app.use(morgan('dev')); // log every request to the console
-//app.use(bodyParser.urlencoded({'extended': 'true'})); // parse application/x-www-form-urlencoded
-//app.use(bodyParser.json()); // parse application/json
+app.use(bodyParser.urlencoded({'extended': 'true'})); // parse application/x-www-form-urlencoded
+app.use(bodyParser.json()); // parse application/json
 //app.use(bodyParser.json({type: 'application/vnd.api+json'})); // parse application/vnd.api+json as json
 app.use(methodOverride('X-HTTP-Method-Override')); // override with the X-HTTP-Method-Override header in the request
 
