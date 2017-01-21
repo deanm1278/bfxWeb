@@ -1,16 +1,11 @@
 var ctlr = angular.module('mainController', []);
 
 ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingService',
-    'waveGen',
-    function($scope, synth, dataToSysex, graphingService, waveGen) {
-        $scope.WebMidi = WebMidi;
-        $scope.synth = synth;
+    'waveGen', 'webMidi',
+    function($scope, synth, dataToSysex, graphingService, waveGen, webMidi) {
         
-        $scope.WebMidi.enable(function (err) {
-            //console.log($scope.WebMidi.inputs);
-            //console.log($scope.WebMidi.outputs);
-            //$scope.$apply();
-        }, true);
+        $scope.synth = synth;
+        $scope.WebMidi = webMidi.client;
         
         $scope.$watch('input', function(newValue, oldValue){
             if(oldValue){ oldValue.removeListener(); }
@@ -19,18 +14,18 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
                 //route messages straight through to the output
                 newValue.addListener('noteon', "all",
                   function (e) {
-                    $scope.output.send(e.data[0], [e.data[1], e.data[2]]);
+                    synth.output.send(e.data[0], [e.data[1], e.data[2]]);
                   }
                 );
                 newValue.addListener('noteoff', "all",
                   function (e) {
-                    $scope.output.send(e.data[0], [e.data[1], e.data[2]]);
+                    synth.output.send(e.data[0], [e.data[1], e.data[2]]);
                   }
                 );
                 newValue.addListener('controlchange', "all",
                     function (e) {
-                      //$scope.output.send(e.data[0], [e.data[1], e.data[2]]);
-                      $scope.synth.params[e.data[1]] = e.data[2];
+                      //synth.output.send(e.data[0], [e.data[1], e.data[2]]);
+                      synth.params[e.data[1]] = e.data[2];
                       $scope.$apply();
                     }
                 );
@@ -79,31 +74,31 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         }, true);
 
         $scope.sendControlValue = function(ccNum){
-            if($scope.output){
-                $scope.output.send(0xB0, [ccNum, $scope.synth.params[ccNum]]);
+            if(synth.output){
+                synth.output.send(0xB0, [ccNum, synth.params[ccNum]]);
             }
         };
         
         $scope.writeFrame = function(channel, data){
-            if($scope.output){
+            if(synth.output){
                 var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
                 var sysexArray = [channel];
                 sysexArray = sysexArray.concat(sysexData);
-                $scope.output.sendSysex(synth.opcodes.WRITE_FRAME, sysexArray);
+                synth.output.sendSysex(synth.opcodes.WRITE_FRAME, sysexArray);
             }
         };
         
         $scope.writeMod = function(num, type, target, data){
-            if($scope.output){
+            if(synth.output){
                 var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
                 var sysexArray = [num, type, target];
                 sysexArray = sysexArray.concat(sysexData);
-                $scope.output.sendSysex(synth.opcodes.WRITE_MOD, sysexArray);
+                synth.output.sendSysex(synth.opcodes.WRITE_MOD, sysexArray);
             }
         };
         
         $scope.writeModAtIndex = function(ix){
-            var mod = $scope.synth.mods[ix];
+            var mod = synth.mods[ix];
             var data = [];
             for(var i in mod.data){
                 data.push(mod.data[i].y);
@@ -115,8 +110,8 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.editWave = function(index, type){
             $scope.editingType = type;
             $scope.editingIndex = index;
-            if(type == 'wave') { $scope.editingWave = $scope.synth.waves[index]; }
-            else if(type == 'mod') { $scope.editingWave = $scope.synth.mods[index].data; }
+            if(type == 'wave') { $scope.editingWave = synth.waves[index]; }
+            else if(type == 'mod') { $scope.editingWave = synth.mods[index].data; }
             $scope.editorActive = true;
         };
         
@@ -124,8 +119,8 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             if(write){
                 var data = [];
                 if($scope.editingType == 'wave'){
-                    for(var i in $scope.synth.waves[$scope.editingIndex]){ 
-                        data.push($scope.synth.waves[$scope.editingIndex][i].y); 
+                    for(var i in synth.waves[$scope.editingIndex]){ 
+                        data.push(synth.waves[$scope.editingIndex][i].y); 
                     }
                     $scope.writeFrame($scope.editingIndex, data);
                     $scope.waveGraphs[$scope.editingIndex].redraw();
@@ -143,7 +138,7 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             $scope.waveGraphs = [{}, {}, {}];
             for(var i in $scope.waveGraphs){
                 var g = graphingService.createGraphWave();
-                g.data = $scope.synth.waves[i];
+                g.data = synth.waves[i];
                 //need to parse the date strings into date objects
                 g.pre(function(caller){
                     caller.getDomain('x', caller.data, 'x');
@@ -164,10 +159,10 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.generateModGraph = function(mod){
             if(mod){
                 var g;
-                if(mod.type == $scope.synth.modTypes.LFO){
+                if(mod.type == synth.modTypes.LFO){
                     g = graphingService.createGraphWave();
                 }
-                else if(mod.type == $scope.synth.modTypes.ENVELOPE){
+                else if(mod.type == synth.modTypes.ENVELOPE){
                     g = graphingService.createGraphEnv();
                 }
                 g.data = mod.data;
@@ -187,25 +182,88 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         };
         
-        $scope.synth.waves[0] = waveGen.sawWave();
-        $scope.synth.waves[1] = waveGen.sawWave();
-        $scope.synth.waves[2] = waveGen.sawWave();
+        synth.waves[0] = waveGen.sawWave();
+        synth.waves[1] = waveGen.sawWave();
+        synth.waves[2] = waveGen.sawWave();
         
         
-        $scope.synth.mods[0] = {
+        synth.mods[0] = {
             data: waveGen.sineWave(256),
-            type: $scope.synth.modTypes.LFO,
-            target: $scope.synth.targets.cutoff
+            type: synth.modTypes.LFO,
+            target: synth.targets.cutoff
         };
-        $scope.synth.mods[1] = {
+        synth.mods[1] = {
             data: waveGen.denv(),
-            type: $scope.synth.modTypes.ENVELOPE,
-            target: $scope.synth.targets.amp
+            type: synth.modTypes.ENVELOPE,
+            target: synth.targets.amp
         };
         
         generateWaveGraphs();
         
 }]);
+
+ctlr.service("webMidi", function(){
+        this.client = WebMidi;
+        
+        WebMidi.enable(function (err) {
+            //console.log($scope.WebMidi.inputs);
+            //console.log($scope.WebMidi.outputs);
+            //$scope.$apply();
+        }, true);
+});
+
+ctlr.directive('keyboard', function(synth){
+    return{
+        restrict: 'E',
+        templateUrl:'templates/keyboard.html',
+        replace: true,
+        scope: {
+        },
+        link: function(scope, element){
+            
+            scope.offset = 40;
+            
+            var noteOn = function(channel, num, velocity){
+                if(synth.output){
+                    synth.output.send(0x8F + channel, [num, velocity]);
+                }
+            };
+            var noteOff = function(channel, num, velocity){
+                if(synth.output){
+                    synth.output.send(0x7F + channel, [num, velocity]);
+                }
+            };
+            
+            if('ontouchstart' in document.documentElement){
+                d3.selectAll(".base-key").on('touchstart', function(){
+                    var key = d3.select(this);
+                    var note = parseInt(key.attr('data-key'));
+                    noteOn(1, scope.offset + note, 127);
+                    //console.log("touch note on: " + note);
+
+                    key.on('touchend', function(){
+                        noteOff(1, scope.offset + note, 127);
+                        //console.log("touch note off: " + note);
+                    });
+                });
+            }
+            else{
+                d3.selectAll(".base-key").on('mousedown', function(){
+                    var key = d3.select(this);
+                    var note = parseInt(key.attr('data-key'));
+                    noteOn(1, scope.offset + note, 127);
+                    //console.log("note on: " + note);
+
+                    key.on('mouseup', function(){
+                        noteOff(1, scope.offset + note, 127);
+                        //console.log("note off: " + note);
+                    });
+                });
+            }
+            
+        }
+    };
+});
 
 ctlr.service('synth', function(){
     this.params = {
@@ -253,6 +311,8 @@ ctlr.service('synth', function(){
     this.waves = [[], [], []];
     
     this.mods = [{}, {}];
+    
+    this.output = undefined;
     
     this.opcodes = {
         WRITE_FRAME: 0x01,

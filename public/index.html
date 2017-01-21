@@ -5,7 +5,7 @@
 <head>
 	<!-- META -->
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"><!-- Optimize mobile viewport -->
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
 
@@ -13,9 +13,11 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-touch.js"></script>-->
         <script src="js/webmidi/webmidi.min.js"></script>
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <script src="js/ng-knob.js"></script>
+        <script src="js/mn-touch.min.js"></script>
 	<script src="js/controllers/main.js"></script> <!-- load up our controller -->
         <script src="js/services/graphing.js"></script>
         <script src="js/services/sysex.js"></script>
@@ -29,7 +31,7 @@
 <body ng-controller="mainController">
     <div class="row">
         <div class="col-sm-3"><select ng-model="input" ng-options="i as i.name for i in WebMidi.inputs"></select></div>
-        <div class="col-sm-3"><select ng-model="output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
+        <div class="col-sm-3"><select ng-model="synth.output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
         <div class="col-sm-1"><button class="btn btn-default" ng-click="writeModAtIndex(0)">Add Mod</button></div>
     </div>
     <hr>
@@ -153,6 +155,11 @@
                     <bfx-graph graph="modGraph1" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <keyboard></keyboard>
         </div>
     </div>
     
