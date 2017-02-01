@@ -6,8 +6,8 @@ angular.module("graphing", ['api'])
             this.createBaseGraph = function(data){
 
                 var margin = {top: 40, right: 30, bottom: 20, left: 40},
-                    width = 1120 - margin.left - margin.right,
-                    height = 500 - margin.top - margin.bottom;
+                    width = window.innerWidth - margin.left - margin.right,
+                    height = window.innerHeight - margin.top - margin.bottom;
 
                 var obj = Object.create(bfxGraph, {
                     margin:{  writable: true, configurable: true, value: margin },
@@ -19,7 +19,9 @@ angular.module("graphing", ['api'])
                 });
 
                 obj.preRender = function(container){
-                    this.svg = d3.select(container).append("svg")
+                    var cont = d3.select(container);
+                    cont.select("svg").remove();
+                    this.svg = cont.append("svg")
                         .attr("width", this.width + this.margin.left + this.margin.right)
                         .attr("height", this.height + this.margin.top + this.margin.bottom);
 
@@ -138,11 +140,6 @@ angular.module("graphing", ['api'])
                     this.drawXContext();
                 };
 
-                return obj;
-            };
-            
-            this.createGraphEnv = function(data){
-                var obj = Object.create(self.createGraphWave(data), { });
                 return obj;
             };
         })

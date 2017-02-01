@@ -29,10 +29,10 @@
 </head>
 <!-- SET THE CONTROLLER -->
 <body ng-controller="mainController">
+    <div class="wrapper">
     <div class="row">
         <div class="col-sm-3"><select ng-model="input" ng-options="i as i.name for i in WebMidi.inputs"></select></div>
         <div class="col-sm-3"><select ng-model="synth.output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
-        <div class="col-sm-1"><button class="btn btn-default" ng-click="writeModAtIndex(0)">Add Mod</button></div>
     </div>
     <hr>
     
@@ -41,20 +41,21 @@
             <!-- waveforms -->
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(0, 'wave')">edit</a>
-                    <bfx-graph graph="waveGraphs[0]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
+                    <a ng-click="editWave(0, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <a ng-click="toggleActive(synth.waves[0])"><span class='glyphicon glyphicon-off'></span></a>
+                    <bfx-graph graph="waveGraphs[0]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(1, 'wave')">edit</a>
-                    <bfx-graph graph="waveGraphs[1]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
+                    <a ng-click="editWave(1, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <bfx-graph graph="waveGraphs[1]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <a ng-click="editWave(2, 'wave')">edit</a>
-                    <bfx-graph graph="waveGraphs[2]" height='175' width='400' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
+                    <a ng-click="editWave(2, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <bfx-graph graph="waveGraphs[2]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
         </div>
@@ -133,26 +134,28 @@
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <select ng-init='selMod0 = synth.mods[0]; modGraph0 = generateModGraph(selMod0)' 
-                            ng-model='selMod0' 
-                            ng-change='modGraph0 = generateModGraph(selMod0)' 
-                            ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
-                    <select ng-model="selMod0.type" ng-options="val as key for (key, val) in synth.modTypes"></select>
-                    <select ng-model="selMod0.target" ng-options="val as key for (key, val) in synth.targets"></select>
-                    <a ng-click="editWave(0, 'mod')">edit</a>
-                    <bfx-graph graph="modGraph0" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                    <select ng-init='modix0 = 0;' 
+                            ng-model='modix0'
+                            ng-options="synth.mods.indexOf(m) as 'mod ' + synth.mods.indexOf(m) for m in synth.mods"></select>
+                    <select ng-model="synth.mods[modix0].type" ng-options="val as key for (key, val) in synth.modTypes"></select>
+                    <select ng-model="synth.mods[modix0].target" ng-options="t as t.name for t in synth.targets"></select>
+                    <select ng-model="synth.mods[modix0].targetId" ng-options="value as key for (key, value) in synth.mods[modix0].target.values"></select>
+                    <a ng-click="editWave(modix0, 'mod')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <a ng-click="toggleActive(synth.mods[modix0])"><span class='glyphicon glyphicon-off'></span></a>
+                    <bfx-graph graph="modGraphs[modix0]" height='graphsize.height' width='graphsize.width' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <select ng-init='selMod1 = synth.mods[1]; modGraph1 = generateModGraph(selMod1)' 
-                            ng-model='selMod1' 
-                            ng-change='modGraph1 = generateModGraph(selMod1)' 
-                            ng-options="m as ix + ': ' + m.type for (ix, m) in synth.mods"></select>
-                    <select ng-model="selMod1.type" ng-options="val as key for (key, val) in synth.modTypes"></select>
-                    <select ng-model="selMod1.target" ng-options="val as key for (key, val) in synth.targets"></select>
-                    <a ng-click="editWave(1, 'mod')">edit</a>
-                    <bfx-graph graph="modGraph1" height='175' width='400' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
+                    <select ng-init='modix1 = 1;' 
+                            ng-model='modix1'
+                            ng-options="synth.mods.indexOf(m) as 'mod ' + synth.mods.indexOf(m) for m in synth.mods"></select>
+                    <select ng-model="synth.mods[modix1].type" ng-options="val as key for (key, val) in synth.modTypes"></select>
+                    <select ng-model="synth.mods[modix1].target" ng-options="t as t.name for t in synth.targets"></select>
+                    <select ng-model="synth.mods[modix1].targetId" ng-options="value as key for (key, value) in synth.mods[modix1].target.values"></select>
+                    <a ng-click="editWave(modix1, 'mod')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <a ng-click="toggleActive(synth.mods[modix1])"><span class='glyphicon glyphicon-off'></span></a>
+                    <bfx-graph graph="modGraphs[modix1]" height='graphsize.height' width='graphsize.width' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
         </div>
@@ -164,5 +167,6 @@
     </div>
     
     <wave-editor wave="editingWave" close="closeEditor" ng-if="editorActive"></wave-editor>
+    </div>
 </body>
 </html>
