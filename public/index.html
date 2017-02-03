@@ -33,6 +33,8 @@
     <div class="row">
         <div class="col-sm-3"><select ng-model="input" ng-options="i as i.name for i in WebMidi.inputs"></select></div>
         <div class="col-sm-3"><select ng-model="synth.output" ng-options="i as i.name for i in WebMidi.outputs"></select></div>
+        <div class="col-sm-3"><button ng-click="writeEverything()">Write all</button></div>
+        <div class='col-sm-2'><a ng-click='modRoutingActive = true'>Show mod routing</a></div>
     </div>
     <hr>
     
@@ -42,19 +44,21 @@
             <div class="row def">
                 <div class="col-md-12">
                     <a ng-click="editWave(0, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
-                    <a ng-click="toggleActive(synth.waves[0])"><span class='glyphicon glyphicon-off'></span></a>
+                    <a ng-click="synth.waves[0].toggleActive()"><span class='glyphicon glyphicon-off'></span></a>
                     <bfx-graph graph="waveGraphs[0]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
                     <a ng-click="editWave(1, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <a ng-click="synth.waves[1].toggleActive()"><span class='glyphicon glyphicon-off'></span></a>
                     <bfx-graph graph="waveGraphs[1]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
                     <a ng-click="editWave(2, 'wave')"><span class='glyphicon glyphicon-edit'></span></a>
+                    <a ng-click="synth.waves[2].toggleActive()"><span class='glyphicon glyphicon-off'></span></a>
                     <bfx-graph graph="waveGraphs[2]" height='graphsize.height' width='graphsize.width' margin='{left:0, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
@@ -63,37 +67,37 @@
             <div class="row def">
                 <div class="col-md-1">
                     Vol
-                    <ui-knob value="synth.params[synth.CC.vol0]" options="knobOptions"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[0].cc.vol]" options="knobOptions"></ui-knob>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.vol1]" options="knobOptions"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[1].cc.vol]" options="knobOptions"></ui-knob>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.vol2]" options="knobOptions"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[2].cc.vol]" options="knobOptions"></ui-knob>
                 </div>
             </div>
         </div>
         <div class="col-md-1">
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.trans0]" options="knobOptionsSmall"></ui-knob>
-                    <ui-knob value="synth.params[synth.CC.tune0]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[0].cc.trans]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[0].cc.tune]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.trans1]" options="knobOptionsSmall"></ui-knob>
-                    <ui-knob value="synth.params[synth.CC.tune1]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[1].cc.trans]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[1].cc.tune]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[synth.CC.trans2]" options="knobOptionsSmall"></ui-knob>
-                    <ui-knob value="synth.params[synth.CC.tune2]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[2].cc.trans]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.waves[2].cc.tune]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
         </div>
@@ -106,14 +110,14 @@
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[1]" options="knobOptionsSmall"></ui-knob>
-                    <ui-knob value="synth.params[114]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.mods[modix0].cc.depth]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.mods[modix0].cc.rate]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-1">
-                    <ui-knob value="synth.params[18]" options="knobOptionsSmall"></ui-knob>
-                    <ui-knob value="synth.params[19]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.mods[modix1].cc.depth]" options="knobOptionsSmall"></ui-knob>
+                    <ui-knob value="synth.params[synth.mods[modix1].cc.rate]" options="knobOptionsSmall"></ui-knob>
                 </div>
             </div>
         </div>
@@ -131,30 +135,33 @@
                     Amp
                     <ui-knob value="synth.params[synth.CC.amp]" options="knobOptions"></ui-knob>
                 </div>
+                <div class="col-md-3">
+                    Glide
+                    <ui-knob value="synth.params[synth.CC.glide]" options="knobOptions"></ui-knob>
+                </div>
+                <div class='col-sm-1'><a ng-click='synth.togglePara()'><span class='glyphicon glyphicon-off'></span></a></div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <select ng-init='modix0 = 0;' 
-                            ng-model='modix0'
+                    <select ng-model='modix0'
                             ng-options="synth.mods.indexOf(m) as 'mod ' + synth.mods.indexOf(m) for m in synth.mods"></select>
-                    <select ng-model="synth.mods[modix0].type" ng-options="val as key for (key, val) in synth.modTypes"></select>
-                    <select ng-model="synth.mods[modix0].target" ng-options="t as t.name for t in synth.targets"></select>
-                    <select ng-model="synth.mods[modix0].targetId" ng-options="value as key for (key, value) in synth.mods[modix0].target.values"></select>
+                    <select ng-model="synth.mods[modix0].type" ng-options="val as key for (key, val) in synth.modTypes" ng-change='synth.mods[modix0].write()'></select>
+                    <select ng-model="synth.mods[modix0].target" ng-options="t as t.name for t in synth.targets" ng-change='synth.mods[modix0].write()'></select>
+                    <select ng-model="synth.mods[modix0].targetId" ng-options="value as key for (key, value) in synth.mods[modix0].target.values" ng-change='synth.mods[modix0].write()'></select>
                     <a ng-click="editWave(modix0, 'mod')"><span class='glyphicon glyphicon-edit'></span></a>
-                    <a ng-click="toggleActive(synth.mods[modix0])"><span class='glyphicon glyphicon-off'></span></a>
+                    <a ng-click="synth.mods[modix0].toggleActive()"><span class='glyphicon glyphicon-off'></span></a>
                     <bfx-graph graph="modGraphs[modix0]" height='graphsize.height' width='graphsize.width' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
             <div class="row def">
                 <div class="col-md-12">
-                    <select ng-init='modix1 = 1;' 
-                            ng-model='modix1'
-                            ng-options="synth.mods.indexOf(m) as 'mod ' + synth.mods.indexOf(m) for m in synth.mods"></select>
-                    <select ng-model="synth.mods[modix1].type" ng-options="val as key for (key, val) in synth.modTypes"></select>
-                    <select ng-model="synth.mods[modix1].target" ng-options="t as t.name for t in synth.targets"></select>
+                    <select ng-model='modix1'
+                            ng-options="synth.mods.indexOf(m) as 'mod ' + synth.mods.indexOf(m) for m in synth.mods" ng-change='synth.mods[modix1].write()'></select>
+                    <select ng-model="synth.mods[modix1].type" ng-options="val as key for (key, val) in synth.modTypes" ng-change='synth.mods[modix1].write()'></select>
+                    <select ng-model="synth.mods[modix1].target" ng-options="t as t.name for t in synth.targets" ng-change='synth.mods[modix1].write()'></select>
                     <select ng-model="synth.mods[modix1].targetId" ng-options="value as key for (key, value) in synth.mods[modix1].target.values"></select>
                     <a ng-click="editWave(modix1, 'mod')"><span class='glyphicon glyphicon-edit'></span></a>
-                    <a ng-click="toggleActive(synth.mods[modix1])"><span class='glyphicon glyphicon-off'></span></a>
+                    <a ng-click="synth.mods[modix1].toggleActive()"><span class='glyphicon glyphicon-off'></span></a>
                     <bfx-graph graph="modGraphs[modix1]" height='graphsize.height' width='graphsize.width' margin='{left:20, right:0, top:10, bottom:10}'></bfx-graph>
                 </div>
             </div>
@@ -167,6 +174,7 @@
     </div>
     
     <wave-editor wave="editingWave" close="closeEditor" ng-if="editorActive"></wave-editor>
+    <mod-routing ng-if="modRoutingActive" close='closeModRouting'></mod-routing>
     </div>
 </body>
 </html>

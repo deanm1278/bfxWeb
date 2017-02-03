@@ -1,0 +1,38 @@
+<div class="overlayBackground">
+    <div class="overlayContent">
+        <div class="row">
+            <div class="col-md-1">
+                <a ng-click="close()()" class="link-btn"><span class="glyphicon glyphicon-remove"></span></a>
+            </div>
+            <div class="col-md-1 pull-right">
+                <a ng-click='pageSwap = !pageSwap' class='link-btn'>page</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class='col-md-12'>
+                <table class='table'>
+                    <thead>
+                        <tr>
+                            <th>Mod</th>
+                            <th>Active</th>
+                            <th>Type</th>
+                            <th>Target Type</th>
+                            <th>Target</th>
+                            <th>Depth</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tr ng-repeat="m in synth.mods | startFrom:(pageSwap ? 7 : 0) | limitTo:7">
+                        <td>{{m.num}}</td>
+                        <td><a ng-click="m.toggleActive()"><span class='glyphicon glyphicon-off'></span></a></td>
+                        <td><select ng-model="m.type" ng-options="val as key for (key, val) in synth.modTypes" ng-change='m.write()'></select></td>
+                        <td><select ng-model="m.target" ng-options="t as t.name for t in synth.targets" ng-change='m.write()'></select></td>
+                        <td><select ng-model="m.targetId" ng-options="value as key for (key, value) in m.target.values"></select></td>
+                        <td><ui-knob value="synth.params[m.cc.depth]" options="knobOptionsSmall"></ui-knob></td>
+                        <td><ui-knob value="synth.params[m.cc.rate]" options="knobOptionsSmall"></ui-knob></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

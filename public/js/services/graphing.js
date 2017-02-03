@@ -155,7 +155,7 @@ angular.module("graphing", ['api'])
                 },
                 link: function(scope, element){
                     
-                    apiService.async({action:'getWaves'}, function(d){
+                    apiService.async({action:'getFrames'}, function(d){
                         scope.presets = d;
                     });
                     
@@ -239,11 +239,9 @@ angular.module("graphing", ['api'])
                        scope.waveGraph.redraw();
                     };
                     
-                    scope.getWavePreset = function(filename){
-                        apiService.async({action:'getPreset', filename:filename}, function(d){
-                            for(var i in dataCopy){
-                                dataCopy[i] = d[i];
-                            }
+                    scope.getFrame = function(filename){
+                        apiService.async({action:'getFrame', filename:filename}, function(d){                
+                            copyArray(dataCopy, d);
                             scope.waveGraph.redraw();
                         });
                     };

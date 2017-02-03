@@ -223,7 +223,7 @@
         that.createArcs();
         //console.log(that);
         //var dragBehavior = d3.behavior.drag().on("drag", dragInteraction).on("dragend", clickInteraction);
-        var dragBehavior = d3.drag().on("drag", dragInteraction);
+        var dragBehavior = d3.drag().on("drag", dragInteraction).on("end", function(){ that.inDrag = false; });
         that.drawArcs(clickInteraction, dragBehavior);
         if (that.options.animate.enabled) {
             //that.valueElem.transition().ease(that.options.animate.ease).duration(that.options.animate.duration).tween("", function() {

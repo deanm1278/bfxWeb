@@ -1,8 +1,8 @@
 var ctlr = angular.module('mainController', []);
 
 ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingService',
-    'waveGen', 'webMidi',
-    function($scope, synth, dataToSysex, graphingService, waveGen, webMidi) {
+    'waveGen', 'webMidi','apiService',
+    function($scope, synth, dataToSysex, graphingService, waveGen, webMidi, apiService) {
         
         $scope.width = window.innerWidth;
         $scope.height = window.innerHeight;
@@ -12,6 +12,10 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         
         $scope.synth = synth;
         $scope.WebMidi = webMidi.client;
+        
+        //default index of modulators to show in the 
+        $scope.modix0 = 0;
+        $scope.modix1 = 1;
         
         $scope.$watch('input', function(newValue, oldValue){
             if(oldValue){ oldValue.removeListener(); }
@@ -30,7 +34,6 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
                 );
                 newValue.addListener('controlchange', "all",
                     function (e) {
-                      //synth.output.send(e.data[0], [e.data[1], e.data[2]]);
                       synth.params[e.data[1]] = e.data[2];
                       $scope.$apply();
                     }
@@ -41,15 +44,15 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.knobOptions = {
             skin: {
               type: 'tron',
-              width: 5,
-              color: '#494B52',
-              spaceWidth: 3
+              width: 3,
+              color: '#e5e5e5',
+              spaceWidth: 4
             },
-            size: $scope.width/12,
-            barColor: '#494B52',
-            trackWidth: 30,
-            barWidth: 30,
-            textColor: '#494B52',
+            size: $scope.width/13,
+            barColor: '#e5e5e5',
+            trackWidth: $scope.width/50,
+            barWidth: $scope.width/50,
+            textColor: '#e5e5e5',
             step: 1,
             max: 127,
             animate: { enabled: false }
@@ -58,14 +61,14 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             skin: {
               type: 'tron',
               width: 2,
-              color: '#494B52',
+              color: '#e5e5e5',
               spaceWidth: 3
             },
             size: $scope.width/20,
-            barColor: '#494B52',
-            trackWidth: 5,
-            barWidth: 10,
-            textColor: '#494B52',
+            barColor: '#e5e5e5',
+            trackWidth: $scope.width/95,
+            barWidth: $scope.width/95,
+            textColor: '#e5e5e5',
             step: 1,
             max: 127,
             animate: { enabled: false }
@@ -74,9 +77,11 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
         $scope.writeEverything = function(){
             for(var i in synth.waves){
                 synth.waves[i].write();
+                synth.params[synth.waves[i].cc.active] = (synth.waves[i].active ? 64 : 63);
             }
             for(var i in synth.mods){
                 synth.mods[i].write();
+                synth.params[synth.mods[i].cc.active] = (synth.mods[i].active ? 64 : 63);
             }
             for(var i in synth.params){
                 $scope.sendControlValue(i);
@@ -117,6 +122,10 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
                 }
             }
             $scope.editorActive = false;
+        };
+        
+        $scope.closeModRouting = function(){
+            $scope.modRoutingActive = false;
         };
         
         var generateWaveGraphs = function(){
@@ -163,7 +172,15 @@ ctlr.controller('mainController', ['$scope', 'synth', 'dataToSysex', 'graphingSe
             }
         };
         
-        generateWaveGraphs();
+        
+        apiService.async({action:'getFrame', filename:'eorgan_106.w'}, function(d){
+            for(var i=0; i<3; i++){
+                copyArray(synth.waves[i].data, d);
+                synth.waves[i].filename = 'eorgan_106.w';
+            }
+            generateWaveGraphs();
+        });
+        
         generateModGraphs();
         
 }]);
@@ -227,57 +244,73 @@ ctlr.directive('keyboard', function(synth){
     };
 });
 
+ctlr.directive('modRouting', function(synth){
+    return{
+        restrict: 'E',
+        templateUrl:'templates/modRouting.html',
+        replace: true,
+        scope: {
+            close: "&"
+        },
+        link: function(scope, element){
+            scope.synth = synth;
+            
+            scope.knobOptionsSmall = {
+            skin: {
+              type: 'tron',
+              width: 1,
+              color: '#e5e5e5',
+              spaceWidth: 2
+            },
+            size: 40,
+            barColor: '#e5e5e5',
+            trackWidth: 4,
+            barWidth: 7,
+            textColor: '#e5e5e5',
+            step: 1,
+            max: 127,
+            animate: { enabled: false }
+          };
+        }
+    };
+});
+
 ctlr.service('synth', function(waveGen, dataToSysex){
     var self = this;
     
-    this.params = {
-        74 : 50,
-        71 : 50,
-        7 : 50,
-        76 : 50,
-        
-        14: 60,
-        15: 65,
-        16: 66, 
-        
-        77: 64,
-        93: 64,
-        73: 64,
-        75: 64,
-        
-        17: 64,
-        91: 64,
-        79: 64,
-        
-        1: 50,
-        114: 50,
-        
-        18: 50,
-        19: 50
-    };
+    this.params = new Array(128);
+    this.params.fill(63);
     
     this.CC = {
         cutoff : 74,
         resonance : 71,
         amp : 7,
         subLevel : 76,
-        vol0 : 77,
-        vol1 : 17,
-        vol2 : 75,
-        //trans0 : 77,
-        trans1 : 93,
-        trans2 : 73,
-        //tune0 : 17,
-        tune1 : 91,
-        tune2 : 79
+        para:   80,
+        glide: 65
+    };
+    
+    this.paraMode = true;
+    
+    this.togglePara = function(){
+        this.paraMode = !this.paraMode;
+        this.params[this.CC.para] = (this.paraMode ? 64 : 63);
     };
     
     this.waves = [];
     for(var i=0; i<3; i++){
+        
         this.waves[i] = {
             num: i,
-            active : false,
-            data: waveGen.sawWave(),
+            active : true,
+            data: new Array(1024),
+            filename: '',
+            cc: {
+                vol: 16 + (i * 4),
+                trans: 17 + (i * 4),
+                tune: 18 + (i * 4),
+                active: 19 + (i * 4)
+            },
             
             write: function(){
                 if(self.output){
@@ -291,6 +324,10 @@ ctlr.service('synth', function(waveGen, dataToSysex){
                     
                     self.output.sendSysex(self.opcodes.WRITE_FRAME, sysexArray);
                 }
+            },
+            toggleActive: function(){
+                this.active = !this.active;
+                self.params[this.cc.active] = (this.active ? 64 : 63);
             }
         };
     }
@@ -299,32 +336,6 @@ ctlr.service('synth', function(waveGen, dataToSysex){
         LFO: 0x00,
         ENVELOPE: 0x01
     };
-    
-    this.mods = [];
-    for(var i=0; i<10; i++){
-        this.mods[i] = {
-            num: i,
-            active: false,
-            data: (i == 0 ? waveGen.sineWave(256) : waveGen.denv()),
-            type: this.modTypes.LFO,
-            target: null,
-            targetId: null,
-            
-            write: function(){
-                if(self.output){
-                    var data = [];
-                    for(var j in this.data){ 
-                        data.push(this.data[j].y); 
-                    }
-                    var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
-                    var sysexArray = [this.num, this.type, this.target.code, this.targetId];
-                    console.log(sysexArray);
-                    sysexArray = sysexArray.concat(sysexData);
-                    self.output.sendSysex(self.opcodes.WRITE_MOD, sysexArray);
-                }
-            }
-        };
-    }
 
     this.output = undefined;
     
@@ -367,6 +378,46 @@ ctlr.service('synth', function(waveGen, dataToSysex){
             }
         }
     ];
+    
+    this.mods = [];
+    for(var i=0; i<10; i++){
+        
+        this.mods[i] = {
+            //MOD STRUCTURE
+            num: i,
+            active: false,
+            data: waveGen.sineWave(256),
+            type: this.modTypes.LFO,
+            target: self.targets[1],
+            targetId: 0x01,
+            filename: '',
+            cc:{
+                rate: 32 + (i * 3),
+                depth: 33 + (i * 3),
+                active: 34 + (i * 3)
+            },
+            
+            write: function(){
+                if(self.output){
+                    var data = [];
+                    for(var j in this.data){ 
+                        data.push(this.data[j].y); 
+                    }
+                    var sysexData = dataToSysex.toSysex(dataToSysex.int16Toint8(data));
+                    var sysexArray = [this.num, this.type, this.target.code, this.targetId];
+                    sysexArray = sysexArray.concat(sysexData);
+                    self.output.sendSysex(self.opcodes.WRITE_MOD, sysexArray);
+                    for(var j in this.cc){
+                        self.output.send(0xB0, [this.cc[j], self.params[this.cc[j]]]);
+                    }
+                }
+            },
+            toggleActive: function(){
+                this.active = !this.active;
+                self.params[this.cc.active] = (this.active ? 64 : 63);
+            }
+        };
+    }
 });
 
 ctlr.factory('waveGen', function(){
@@ -419,4 +470,18 @@ ctlr.factory('waveGen', function(){
             return arr;
         }
    } 
+});
+
+var copyArray = function(dest, src){
+    dest.length = src.length;
+    for(var i in src){
+        dest[i] = src[i];
+    }
+};
+
+ctlr.filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    };
 });

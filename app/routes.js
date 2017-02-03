@@ -14,14 +14,14 @@ module.exports = function (app) {
         };
         
         switch(action){
-            case 'getWaves':
+            case 'getFrames':
                 //return a list of all preset waves available
-                fs.readdir(__dirname + '/presets/waves', function(err, files){
+                fs.readdir(__dirname + '/presets/frames', function(err, files){
                     returnData(files);
                 });
                 break;
-            case 'getPreset':
-                var readStream = fs.createReadStream(__dirname + '/presets/waves/' + req.body.filename);
+            case 'getFrame':
+                var readStream = fs.createReadStream(__dirname + '/presets/frames/' + req.body.filename);
                 readStream.on('data', function (chunk) {
                     var d = [];
                     var pos = 0;
